@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { BranchesModule } from './branches/branches.module';
+import { CarsModule } from './cars/cars.module';
 import {
   validate,
   appConfig,
@@ -23,6 +25,8 @@ import { JwtAuthGuard, RolesGuard } from './common/guards';
     }),
     PrismaModule,
     AuthModule,
+    BranchesModule,
+    CarsModule,
   ],
   controllers: [AppController],
   providers: [
