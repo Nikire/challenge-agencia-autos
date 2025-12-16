@@ -11,6 +11,7 @@ async function main() {
   console.log('Starting database seed...');
 
   // Clean existing data (order matters due to foreign keys)
+  await prisma.inventory.deleteMany();
   await prisma.car.deleteMany();
   await prisma.branch.deleteMany();
   await prisma.user.deleteMany();
@@ -154,6 +155,30 @@ async function main() {
     }),
   ]);
   console.log(`Created ${cars.length} cars`);
+
+  // Create inventory (stock for each car at each branch)
+  // Some entries have 0 stock for testing unavailability scenarios
+  const inventoryData: { branchId: string; carId: string; quantity: number }[] =
+    [];
+
+  for (const branch of branches) {
+    for (const car of cars) {
+      // ~25% chance of 0 stock, otherwise 1-8 units
+      const quantity = Math.random() < 0.25 ? 0 : Math.floor(Math.random() * 8) + 1;
+      inventoryData.push({
+        branchId: branch.id,
+        carId: car.id,
+        quantity,
+      });
+    }
+  }
+
+  await prisma.inventory.createMany({
+    data: inventoryData,
+  });
+
+  const outOfStock = inventoryData.filter((i) => i.quantity === 0).length;
+  console.log(`Created ${inventoryData.length} inventory entries (${outOfStock} out of stock)`);
 
   console.log('Database seed completed!');
 }

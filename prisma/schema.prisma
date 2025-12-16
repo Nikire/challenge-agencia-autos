@@ -43,6 +43,8 @@ model Branch {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  inventory Inventory[]
+
   @@map("branches")
 }
 
@@ -59,5 +61,22 @@ model Car {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
+  inventory Inventory[]
+
   @@map("cars")
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  branchId  String   @map("branch_id")
+  carId     String   @map("car_id")
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  branch Branch @relation(fields: [branchId], references: [id])
+  car    Car    @relation(fields: [carId], references: [id])
+
+  @@unique([branchId, carId])
+  @@map("inventory")
 }
