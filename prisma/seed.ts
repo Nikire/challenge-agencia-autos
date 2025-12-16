@@ -11,6 +11,7 @@ async function main() {
   console.log('Starting database seed...');
 
   // Clean existing data (order matters due to foreign keys)
+  await prisma.discount.deleteMany();
   await prisma.inventory.deleteMany();
   await prisma.car.deleteMany();
   await prisma.branch.deleteMany();
@@ -179,6 +180,70 @@ async function main() {
 
   const outOfStock = inventoryData.filter((i) => i.quantity === 0).length;
   console.log(`Created ${inventoryData.length} inventory entries (${outOfStock} out of stock)`);
+
+  // Create discounts for customers
+  const now = new Date();
+  const nextYear = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+  const lastYear = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+
+  const discounts = await Promise.all([
+    // Juan Perez - Active 10% loyal customer discount
+    prisma.discount.create({
+      data: {
+        userId: customers[0].id,
+        percentage: 10,
+        description: 'Loyal customer discount',
+        validFrom: lastYear,
+        validUntil: nextYear,
+        isActive: true,
+      },
+    }),
+    // Juan Perez - Active 15% seasonal promotion (higher, will be applied)
+    prisma.discount.create({
+      data: {
+        userId: customers[0].id,
+        percentage: 15,
+        description: 'Summer promotion 2024',
+        validFrom: now,
+        validUntil: nextYear,
+        isActive: true,
+      },
+    }),
+    // Maria Garcia - Active 20% VIP discount
+    prisma.discount.create({
+      data: {
+        userId: customers[1].id,
+        percentage: 20,
+        description: 'VIP customer discount',
+        validFrom: lastYear,
+        validUntil: nextYear,
+        isActive: true,
+      },
+    }),
+    // Maria Garcia - Expired discount (for testing)
+    prisma.discount.create({
+      data: {
+        userId: customers[1].id,
+        percentage: 25,
+        description: 'Black Friday 2023',
+        validFrom: new Date('2023-11-20'),
+        validUntil: new Date('2023-11-30'),
+        isActive: true,
+      },
+    }),
+    // Carlos Lopez - Inactive discount (for testing)
+    prisma.discount.create({
+      data: {
+        userId: customers[2].id,
+        percentage: 5,
+        description: 'First rental discount',
+        validFrom: lastYear,
+        validUntil: nextYear,
+        isActive: false,
+      },
+    }),
+  ]);
+  console.log(`Created ${discounts.length} discounts`);
 
   console.log('Database seed completed!');
 }

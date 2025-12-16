@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { BranchesModule } from './branches/branches.module';
 import { CarsModule } from './cars/cars.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { DiscountsModule } from './discounts/discounts.module';
 import {
   validate,
   appConfig,
@@ -29,6 +30,7 @@ import { JwtAuthGuard, RolesGuard } from './common/guards';
     BranchesModule,
     CarsModule,
     InventoryModule,
+    DiscountsModule,
   ],
   controllers: [AppController],
   providers: [
