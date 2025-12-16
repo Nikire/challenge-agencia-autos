@@ -6,7 +6,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto, AuthResponseDto } from './dto';
+import { AdminLoginDto, AuthResponseDto } from './dto';
 import { Public } from '../common/decorators';
 
 @ApiTags('Admin Auth')
@@ -23,7 +23,7 @@ export class AdminAuthController {
     type: AuthResponseDto,
   })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
-  async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
+  async login(@Body() dto: AdminLoginDto): Promise<AuthResponseDto> {
     return this.authService.loginEmployee(dto);
   }
 }

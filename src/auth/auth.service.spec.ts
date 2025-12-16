@@ -43,10 +43,10 @@ describe('AuthService', () => {
 
   describe('registerCustomer', () => {
     const registerDto = {
-      email: 'test@example.com',
-      password: 'password123',
-      firstName: 'John',
-      lastName: 'Doe',
+      email: 'pedro.martinez@email.com',
+      password: 'customer123',
+      firstName: 'Pedro',
+      lastName: 'Martinez',
     };
 
     it('should register a new customer and return access token', async () => {
@@ -83,8 +83,8 @@ describe('AuthService', () => {
 
   describe('loginCustomer', () => {
     const loginDto = {
-      email: 'test@example.com',
-      password: 'password123',
+      email: 'juan.perez@email.com',
+      password: 'customer123',
     };
 
     it('should login customer and return access token', async () => {
@@ -126,8 +126,8 @@ describe('AuthService', () => {
 
   describe('loginEmployee', () => {
     const loginDto = {
-      email: 'admin@example.com',
-      password: 'password123',
+      email: 'admin@agencia.com',
+      password: 'admin123',
     };
 
     it('should login employee and return access token', async () => {

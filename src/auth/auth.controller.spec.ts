@@ -28,10 +28,10 @@ describe('AuthController', () => {
   describe('register', () => {
     it('should register a new customer', async () => {
       const registerDto = {
-        email: 'test@example.com',
-        password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
+        email: 'pedro.martinez@email.com',
+        password: 'customer123',
+        firstName: 'Pedro',
+        lastName: 'Martinez',
       };
       const expectedResult = { accessToken: 'mock-token' };
 
@@ -49,8 +49,8 @@ describe('AuthController', () => {
   describe('login', () => {
     it('should login a customer', async () => {
       const loginDto = {
-        email: 'test@example.com',
-        password: 'password123',
+        email: 'juan.perez@email.com',
+        password: 'customer123',
       };
       const expectedResult = { accessToken: 'mock-token' };
 

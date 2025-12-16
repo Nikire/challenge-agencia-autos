@@ -27,8 +27,8 @@ describe('AdminAuthController', () => {
   describe('login', () => {
     it('should login an employee', async () => {
       const loginDto = {
-        email: 'admin@example.com',
-        password: 'password123',
+        email: 'admin@agencia.com',
+        password: 'admin123',
       };
       const expectedResult = { accessToken: 'mock-token' };
 
