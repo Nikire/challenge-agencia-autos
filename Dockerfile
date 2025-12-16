@@ -19,9 +19,12 @@ COPY --from=builder /app/prisma ./prisma
 RUN npm ci --omit=dev && npx prisma generate
 
 COPY --from=builder /app/dist ./dist
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3000
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]
 
 # Development stage
@@ -33,7 +36,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3000
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["npm", "run", "start:dev"]
