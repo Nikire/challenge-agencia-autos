@@ -1,4 +1,4 @@
-import { PrismaClient, Role, CarCategory } from '@prisma/client';
+import { PrismaClient, Role, CarCategory, ReservationStatus } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
 
@@ -11,6 +11,7 @@ async function main() {
   console.log('Starting database seed...');
 
   // Clean existing data (order matters due to foreign keys)
+  await prisma.reservation.deleteMany();
   await prisma.discount.deleteMany();
   await prisma.inventory.deleteMany();
   await prisma.car.deleteMany();
@@ -244,6 +245,90 @@ async function main() {
     }),
   ]);
   console.log(`Created ${discounts.length} discounts`);
+
+  // Create reservations with various statuses for testing
+  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+  const reservations = await Promise.all([
+    // Juan Perez - Pending reservation (future)
+    prisma.reservation.create({
+      data: {
+        userId: customers[0].id,
+        carId: cars[0].id, // Toyota Corolla
+        branchId: branches[0].id, // Sucursal Centro
+        startDate: nextWeek,
+        endDate: new Date(nextWeek.getTime() + 3 * 24 * 60 * 60 * 1000), // 3 days
+        discountId: discounts[1].id, // 15% summer promotion
+        discountPercentage: 15,
+        dailyPrice: 45.99,
+        totalPrice: 117.27, // 3 * 45.99 * 0.85
+        status: ReservationStatus.pending,
+      },
+    }),
+    // Juan Perez - Confirmed reservation (future)
+    prisma.reservation.create({
+      data: {
+        userId: customers[0].id,
+        carId: cars[3].id, // Volkswagen Tiguan
+        branchId: branches[1].id, // Sucursal Aeropuerto
+        startDate: nextMonth,
+        endDate: new Date(nextMonth.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days
+        discountId: discounts[1].id,
+        discountPercentage: 15,
+        dailyPrice: 75.99,
+        totalPrice: 322.96, // 5 * 75.99 * 0.85
+        status: ReservationStatus.confirmed,
+      },
+    }),
+    // Maria Garcia - Completed reservation (past)
+    prisma.reservation.create({
+      data: {
+        userId: customers[1].id,
+        carId: cars[4].id, // Mercedes-Benz Clase E
+        branchId: branches[0].id,
+        startDate: lastMonth,
+        endDate: new Date(lastMonth.getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days
+        discountId: discounts[2].id, // 20% VIP
+        discountPercentage: 20,
+        dailyPrice: 150.99,
+        totalPrice: 241.58, // 2 * 150.99 * 0.80
+        status: ReservationStatus.completed,
+      },
+    }),
+    // Maria Garcia - Cancelled reservation
+    prisma.reservation.create({
+      data: {
+        userId: customers[1].id,
+        carId: cars[1].id, // Toyota Hilux
+        branchId: branches[2].id, // Sucursal Norte
+        startDate: nextWeek,
+        endDate: new Date(nextWeek.getTime() + 4 * 24 * 60 * 60 * 1000),
+        discountId: discounts[2].id,
+        discountPercentage: 20,
+        dailyPrice: 89.99,
+        totalPrice: 287.97, // 4 * 89.99 * 0.80
+        status: ReservationStatus.cancelled,
+      },
+    }),
+    // Carlos Lopez - Pending reservation without discount
+    prisma.reservation.create({
+      data: {
+        userId: customers[2].id,
+        carId: cars[2].id, // Ford Focus
+        branchId: branches[0].id,
+        startDate: nextWeek,
+        endDate: new Date(nextWeek.getTime() + 2 * 24 * 60 * 60 * 1000),
+        discountId: null, // No discount (his discount is inactive)
+        discountPercentage: 0,
+        dailyPrice: 39.99,
+        totalPrice: 79.98, // 2 * 39.99
+        status: ReservationStatus.pending,
+      },
+    }),
+  ]);
+  console.log(`Created ${reservations.length} reservations`);
 
   console.log('Database seed completed!');
 }

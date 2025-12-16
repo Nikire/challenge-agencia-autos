@@ -9,6 +9,7 @@ import { BranchesModule } from './branches/branches.module';
 import { CarsModule } from './cars/cars.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { DiscountsModule } from './discounts/discounts.module';
+import { ReservationsModule } from './reservations/reservations.module';
 import {
   validate,
   appConfig,
@@ -31,6 +32,7 @@ import { JwtAuthGuard, RolesGuard } from './common/guards';
     CarsModule,
     InventoryModule,
     DiscountsModule,
+    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [

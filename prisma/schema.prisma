@@ -21,7 +21,8 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  discounts Discount[]
+  discounts    Discount[]
+  reservations Reservation[]
 
   @@map("users")
 }
@@ -45,7 +46,8 @@ model Branch {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  inventory Inventory[]
+  inventory    Inventory[]
+  reservations Reservation[]
 
   @@map("branches")
 }
@@ -63,7 +65,8 @@ model Car {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
-  inventory Inventory[]
+  inventory    Inventory[]
+  reservations Reservation[]
 
   @@map("cars")
 }
@@ -94,7 +97,38 @@ model Discount {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  reservations Reservation[]
 
   @@map("discounts")
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+model Reservation {
+  id                 String            @id @default(uuid())
+  userId             String            @map("user_id")
+  carId              String            @map("car_id")
+  branchId           String            @map("branch_id")
+  startDate          DateTime          @map("start_date")
+  endDate            DateTime          @map("end_date")
+  discountId         String?           @map("discount_id")
+  discountPercentage Decimal           @default(0) @map("discount_percentage") @db.Decimal(5, 2)
+  dailyPrice         Decimal           @map("daily_price") @db.Decimal(10, 2)
+  totalPrice         Decimal           @map("total_price") @db.Decimal(10, 2)
+  status             ReservationStatus @default(pending)
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id])
+  car      Car       @relation(fields: [carId], references: [id])
+  branch   Branch    @relation(fields: [branchId], references: [id])
+  discount Discount? @relation(fields: [discountId], references: [id])
+
+  @@map("reservations")
 }
