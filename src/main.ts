@@ -1,12 +1,21 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  // Global validation pipe
+  const app = await NestFactory.create(AppModule, {
+    logger: isProduction
+      ? ['error', 'warn', 'log']
+      : ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('app.port', 3000);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -15,7 +24,6 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Agencia de Autos API')
     .setDescription('API para gestión de reservas de autos')
@@ -26,6 +34,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port);
+
+  const logger = new Logger('Bootstrap');
+  logger.log(`Application running on port ${port}`);
+  logger.log(`Swagger available at http://localhost:${port}/api/docs`);
 }
-bootstrap();
+void bootstrap();
