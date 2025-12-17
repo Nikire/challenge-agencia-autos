@@ -26,6 +26,7 @@ services:
     restart: unless-stopped
     ports:
       - "${API_PORT:-3000}:3000"
+      - "5555:5555"  # Prisma Studio
     environment:
       DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-agencia_autos}?schema=public
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-key-change-in-production}

@@ -37,7 +37,8 @@
     "docker:migrate": "docker-compose exec api npx prisma migrate dev",
     "docker:migrate:create": "docker-compose exec api npx prisma migrate dev --create-only",
     "docker:shell": "docker-compose exec api sh",
-    "docker:seed": "docker-compose exec api npx ts-node prisma/seed.ts"
+    "docker:seed": "docker-compose exec api npx ts-node prisma/seed.ts",
+    "docker:studio": "docker-compose exec api npx prisma studio --port 5555 --browser none"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

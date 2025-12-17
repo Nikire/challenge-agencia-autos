@@ -24,20 +24,24 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('Agencia de Autos API')
-    .setDescription('API para gestión de reservas de autos')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  if (!isProduction) {
+    const config = new DocumentBuilder()
+      .setTitle('Agencia de Autos API')
+      .setDescription('API para gestión de reservas de autos')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   await app.listen(port);
 
   const logger = new Logger('Bootstrap');
   logger.log(`Application running on port ${port}`);
-  logger.log(`Swagger available at http://localhost:${port}/api/docs`);
+  if (!isProduction) {
+    logger.log(`Swagger available at http://localhost:${port}/api/docs`);
+  }
 }
 void bootstrap();

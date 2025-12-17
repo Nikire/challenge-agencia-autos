@@ -1,98 +1,228 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Challenge Backend - Agencia de Reserva de Autos
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Challenge completado: API backend para gestionar reservas de autos con NestJS, TypeScript y PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> Los requerimientos originales del challenge se encuentran en [CHALLENGE.md](./CHALLENGE.md).
 
-## Description
+## Tecnologias Utilizadas
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Framework**: NestJS + TypeScript
+- **Base de datos**: PostgreSQL
+- **ORM**: Prisma 7
+- **Autenticacion**: JWT (passport-jwt)
+- **Validacion**: class-validator
+- **Documentacion**: Swagger/OpenAPI
+- **Contenedores**: Docker + Docker Compose
 
-## Project setup
+## Inicio Rapido con Docker
 
 ```bash
-$ npm install
+# Clonar el repositorio
+git clone <url-del-repositorio>
+cd challenge-agencia-autos
+
+# Copiar archivo de configuracion
+cp .env.example .env
+
+# Generar JWT_SECRET seguro (reemplazar en .env)
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Iniciar con Docker Compose (incluye PostgreSQL)
+docker-compose up -d --build
+
+# La API estara disponible en http://localhost:3000
+# Documentacion Swagger en http://localhost:3000/api/docs
 ```
 
-## Compile and run the project
+## Configuracion Local (sin Docker)
+
+### Prerequisitos
+
+- Node.js 18+
+- PostgreSQL 15+
+- npm
+
+### Instalacion
 
 ```bash
-# development
-$ npm run start
+# Instalar dependencias
+npm install
 
-# watch mode
-$ npm run start:dev
+# Copiar archivo de configuracion
+cp .env.example .env
 
-# production mode
-$ npm run start:prod
+# Generar JWT_SECRET seguro
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Actualizar DATABASE_URL y JWT_SECRET en .env
 ```
 
-## Run tests
+### Base de Datos y Migraciones
+
+#### Prisma ORM
+
+Este proyecto utiliza Prisma como ORM. El esquema de la base de datos se define en `prisma/schema.prisma` y las migraciones se generan automaticamente a partir de los cambios en este archivo.
+
+#### Comandos de Migracion
 
 ```bash
-# unit tests
-$ npm run test
+# 1. Generar el cliente Prisma (necesario antes de ejecutar la aplicacion)
+npm run prisma:generate
 
-# e2e tests
-$ npm run test:e2e
+# 2. Ejecutar migraciones en desarrollo (crea/actualiza tablas)
+npm run prisma:migrate
 
-# test coverage
-$ npm run test:cov
+# 3. Ejecutar migraciones en produccion (solo aplica migraciones existentes)
+npm run prisma:migrate:deploy
 ```
 
-## Deployment
+**Diferencia entre migrate y migrate:deploy:**
+- `prisma:migrate` - Modo desarrollo. Detecta cambios en el schema, genera nuevas migraciones y las aplica. Puede solicitar nombre para la migracion.
+- `prisma:migrate:deploy` - Modo produccion. Solo aplica migraciones pendientes sin generar nuevas. Seguro para entornos productivos.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+#### Seed (Datos de Prueba)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+El archivo `prisma/seed.ts` contiene datos iniciales para probar la aplicacion:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Cargar datos de prueba en la base de datos
+npm run prisma:seed
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+El seed crea:
+- 1 empleado (admin)
+- 3 clientes de prueba
+- 3 sucursales
+- 6 modelos de autos
+- Inventario por sucursal
+- Descuentos para algunos clientes
+- Reservas de ejemplo
 
-## Resources
+> **Nota:** El seed elimina todos los datos existentes antes de insertar los nuevos. No ejecutar en produccion con datos reales.
 
-Check out a few resources that may come in handy when working with NestJS:
+#### Prisma Studio
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Para explorar y editar datos visualmente:
 
-## Support
+```bash
+# Si usas Docker (recomendado)
+npm run docker:studio
+# Abre interfaz web en http://localhost:5555
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Si tienes PostgreSQL local
+npm run prisma:studio
+```
 
-## Stay in touch
+### Ejecutar la Aplicacion
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Modo desarrollo (con hot reload)
+npm run start:dev
 
-## License
+# Modo produccion
+npm run build
+npm run start:prod
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Variables de Entorno
+
+| Variable | Descripcion | Default |
+|----------|-------------|---------|
+| `NODE_ENV` | Entorno (development/production) | `development` |
+| `PORT` | Puerto del servidor | `3000` |
+| `DATABASE_URL` | Conexion a PostgreSQL | - |
+| `JWT_SECRET` | Clave secreta para JWT | - |
+| `JWT_EXPIRATION` | Tiempo de expiracion del token | `1d` |
+
+Ejemplo `.env`:
+```env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/agencia_autos?schema=public
+JWT_SECRET=tu-clave-secreta-generada
+JWT_EXPIRATION=1d
+```
+
+## Documentacion de la API
+
+Swagger UI disponible en `/api/docs` en modo desarrollo.
+
+> Nota: Swagger esta deshabilitado en produccion por seguridad.
+
+## Credenciales de Prueba
+
+Despues de ejecutar los seeds:
+
+**Empleado:**
+- Email: `admin@agencia.com`
+- Password: `admin123`
+
+**Clientes:**
+- Email: `juan.perez@email.com` / Password: `customer123`
+- Email: `maria.garcia@email.com` / Password: `customer123`
+- Email: `carlos.lopez@email.com` / Password: `customer123`
+
+## Tests
+
+```bash
+# Tests unitarios
+npm run test
+
+# Modo watch
+npm run test:watch
+
+# Reporte de cobertura
+npm run test:cov
+
+# Tests E2E
+npm run test:e2e
+```
+
+## Docker
+
+### Entrypoint
+
+El archivo `docker-entrypoint.sh` se ejecuta automaticamente al iniciar el contenedor y realiza:
+
+1. **Genera el cliente Prisma** - `prisma generate`
+2. **Ejecuta migraciones** - `prisma migrate deploy` (modo seguro para produccion)
+3. **Inicia la aplicacion** - `npm run start:dev`
+
+Esto garantiza que la base de datos siempre este sincronizada con el schema antes de iniciar la API.
+
+### Comandos Docker
+
+```bash
+# Iniciar servicios
+docker-compose up -d
+
+# Reconstruir despues de cambios
+docker-compose up -d --build
+
+# Ver logs
+docker-compose logs -f app
+
+# Detener servicios
+docker-compose down
+
+# Reiniciar base de datos (elimina volumenes)
+docker-compose down -v
+```
+
+## Scripts Disponibles
+
+| Script | Descripcion |
+|--------|-------------|
+| `npm run start:dev` | Desarrollo con hot reload |
+| `npm run start:prod` | Modo produccion |
+| `npm run build` | Compilar para produccion |
+| `npm run test` | Ejecutar tests unitarios |
+| `npm run test:e2e` | Ejecutar tests E2E |
+| `npm run lint` | Lint y corregir codigo |
+| `npm run format` | Formatear con Prettier |
+| `npm run prisma:generate` | Generar cliente Prisma |
+| `npm run prisma:migrate` | Ejecutar migraciones (dev) |
+| `npm run prisma:migrate:deploy` | Desplegar migraciones (prod) |
+| `npm run prisma:seed` | Cargar datos de prueba |
+| `npm run prisma:studio` | Abrir Prisma Studio (local) |
+| `npm run docker:studio` | Abrir Prisma Studio (Docker) |

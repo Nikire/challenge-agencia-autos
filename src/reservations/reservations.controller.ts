@@ -57,7 +57,7 @@ export class ReservationsController {
     ) as Promise<ReservationWithDetailsDto>;
   }
 
-  @Get()
+  @Get('me')
   @ApiOperation({ summary: 'Get my reservations' })
   @ApiOkResponse({
     description: 'List of my reservations',
