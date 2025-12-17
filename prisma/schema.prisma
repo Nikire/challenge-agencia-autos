@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  customer
+  employee
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  role      Role     @default(customer)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  discounts    Discount[]
+  reservations Reservation[]
+
+  @@map("users")
+}
+
+enum CarCategory {
+  sedan
+  suv
+  hatchback
+  pickup
+  van
+  luxury
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  city      String
+  phone     String
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  inventory    Inventory[]
+  reservations Reservation[]
+
+  @@map("branches")
+}
+
+model Car {
+  id          String      @id @default(uuid())
+  brand       String
+  model       String
+  year        Int
+  category    CarCategory
+  dailyPrice  Decimal     @map("daily_price") @db.Decimal(10, 2)
+  description String?
+  imageUrl    String?     @map("image_url")
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  inventory    Inventory[]
+  reservations Reservation[]
+
+  @@map("cars")
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  branchId  String   @map("branch_id")
+  carId     String   @map("car_id")
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  branch Branch @relation(fields: [branchId], references: [id])
+  car    Car    @relation(fields: [carId], references: [id])
+
+  @@unique([branchId, carId])
+  @@map("inventory")
+}
+
+model Discount {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  percentage  Decimal  @db.Decimal(5, 2)
+  description String?
+  validFrom   DateTime @map("valid_from")
+  validUntil  DateTime @map("valid_until")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id])
+  reservations Reservation[]
+
+  @@map("discounts")
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+model Reservation {
+  id                 String            @id @default(uuid())
+  userId             String            @map("user_id")
+  carId              String            @map("car_id")
+  branchId           String            @map("branch_id")
+  startDate          DateTime          @map("start_date")
+  endDate            DateTime          @map("end_date")
+  discountId         String?           @map("discount_id")
+  discountPercentage Decimal           @default(0) @map("discount_percentage") @db.Decimal(5, 2)
+  dailyPrice         Decimal           @map("daily_price") @db.Decimal(10, 2)
+  totalPrice         Decimal           @map("total_price") @db.Decimal(10, 2)
+  status             ReservationStatus @default(pending)
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id])
+  car      Car       @relation(fields: [carId], references: [id])
+  branch   Branch    @relation(fields: [branchId], references: [id])
+  discount Discount? @relation(fields: [discountId], references: [id])
+
+  @@map("reservations")
+}
